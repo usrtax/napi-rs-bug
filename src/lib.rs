@@ -2,11 +2,20 @@ use napi::bindgen_prelude::Buffer;
 use napi_derive::napi;
 
 #[napi]
-pub fn bin_i64(bin: Buffer) -> i64 {
-  i64::from_le_bytes(bin[..].try_into().unwrap())
-}
+async fn blake3_round(data: Buffer, round: u32) -> Buffer {
+  async move {
+    let mut hasher = blake3::Hasher::new();
+    hasher.update(data.as_ref());
 
-#[napi]
-pub fn i64_bin(i: i64) -> Buffer {
-  (i as i64).to_le_bytes()[..].into()
+    let mut output = [0; 2048];
+    for _ in 1..round {
+      hasher.finalize_xof().fill(&mut output);
+      hasher.update(&output);
+    }
+
+    hasher.finalize()
+  }
+  .await
+  .as_bytes()[..]
+    .into()
 }
