@@ -35,7 +35,7 @@ impl TypeName for Bin {
 
 impl ValidateNapiValue for Bin {
   unsafe fn validate(env: napi_env, napi_val: napi_value) -> napi::Result<napi_value> {
-    unsafe { StringOrBuffer::validate(env, napi_val) }
+    StringOrBuffer::validate(env, napi_val)
   }
 }
 
